@@ -1,0 +1,79 @@
+
+"use strict"
+const debug = true
+const { config } = require("dotenv")
+
+require("dotenv").config()
+var DB_NAME
+var DB_USERNAME
+var DB_PASSWORD
+var DB_HOST
+var DB_PORT
+
+
+if (debug) {
+    console.log("-------------- Is dev: ", process.env.TYPE == "DEV_LOCAL")
+    console.log("Type: ", process.env.TYPE)
+}
+
+if (process.env.TYPE == "DEV_LOCAL") {
+    DB_NAME = process.env.DEV_LOCAL_DB_NAME
+    DB_USERNAME = process.env.DEV_LOCAL_DB_USERNAME
+    DB_PASSWORD = process.env.DEV_LOCAL_DB_PASSWORD
+    DB_HOST = process.env.DEV_LOCAL_DB_HOST
+    DB_PORT = process.env.DEV_LOCAL_DB_PORT
+    if (debug) {
+
+        console.log("Remote DB Name: ", DB_NAME);
+        console.log("Remote DB Username: ", DB_USERNAME);
+        console.log("Remote DB Host: ", DB_HOST);
+        console.log("Remote DB Port: ", DB_PORT);
+    }
+
+} else {
+    DB_NAME = process.env.DEV_REMOTE_DB_NAME
+    DB_USERNAME = process.env.DEV_REMOTE_DB_USERNAME
+    DB_PASSWORD = process.env.DEV_REMOTE_DB_PASSWORD
+    DB_HOST = process.env.DEV_REMOTE_DB_HOST
+    DB_PORT = process.env.DEV_REMOTE_DB_PORT
+    if (debug) {
+
+        console.log("Loacl DB Name: ", DB_NAME);
+        console.log("Loacl DB Username: ", DB_USERNAME);
+        console.log("Loacl DB Host: ", DB_HOST);
+        console.log("Loacl DBPassword: ", DB_PASSWORD);
+    }
+
+
+}
+
+const con = require("serverless-mysql");
+
+const connection = con({
+    //connectTimeout: 3, // TODO: implement something like this. This does not work
+    //  timeout: 2,// TODO: implement something like this. This does not work
+    config: {
+        multipleStatements: true,
+        acquireTimeout: 3,
+        database: DB_NAME,
+        user: DB_USERNAME,
+        password: DB_PASSWORD,
+        host: DB_HOST,
+        port: DB_PORT,
+    },
+});
+
+
+connection
+    .connect()
+    .then(() => {
+        console.log("Connected to the database.");
+    })
+    .catch((err) => {
+        console.error("Error connecting to the database:", err);
+    });
+
+
+
+
+module.exports = connection

@@ -1,0 +1,51 @@
+
+
+
+
+
+maybe implement this? As there is a waarning for the current working method:
+
+
+
+
+service: ${env:SERVICENAME}
+frameworkVersion: "3"
+provider:
+  name: aws
+  stage: dev
+  runtime: nodejs18.x
+  timeout: 3
+  region: us-east-2
+  environment:
+    SERVICENAME: ${env:SERVICENAME}
+    # ... other environment variables ...
+
+custom:
+  corsSettings:
+    allowedOrigins:
+      - "https://v3-erm.web.app"
+    allowedMethods:
+      - POST
+      - GET
+      - OPTIONS
+    allowedHeaders:
+      - Content-Type
+      - X-Api-Key
+    maxAge: 6000 # In seconds
+
+functions:
+  v3AccessJobSeekerJobApplication:
+    handler: src/middleware/jobSeekerAccess/jobApplication.v3AccessJobSeekerJobApplication
+    events:
+      - http:
+          path: /api/accessJobSeekerJobApplication/{jobPostId}/{applicationId}
+          method: post
+          cors: ${self:custom.corsSettings}
+
+  v3AccessJobSeekerCreateApplication:
+    handler: src/middleware/jobSeekerAccess/job-details.v3AccessJobSeekerCreateApplication
+    events:
+      - http:
+          path: /api/accessJobSeekerCreateApplication
+          method: post
+          cors: ${self:custom.corsSettings}

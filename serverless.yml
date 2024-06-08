@@ -1,0 +1,339 @@
+useDotenv: true
+service: ${env:SERVICENAME}
+frameworkVersion: "3"
+provider:
+    name: aws
+    stage: dev
+    environment:
+        SERVICENAME: ${env:SERVICENAME}
+        JWT_SECRET: ${env:JWT_SECRET}
+        PRIVATE: ${env:PRIVATE}
+        DEFAULT_REGION: ${env:DEFAULT_REGION}
+        DEV_REMOTE_DB_NAME: ${env:DEV_REMOTE_DB_NAME}
+        DEV_REMOTE_DB_USERNAME: ${env:DEV_REMOTE_DB_USERNAME}
+        DEV_REMOTE_DB_PASSWORD: ${env:DEV_REMOTE_DB_PASSWORD}
+        DEV_REMOTE_DB_HOST: ${env:DEV_REMOTE_DB_HOST}
+        DEV_REMOTE_DB_PORT: ${env:DEV_REMOTE_DB_PORT}
+        DEV_LOCAL_DB_NAME: ${env:DEV_LOCAL_DB_NAME}
+        DEV_LOCAL_DB_USERNAME: ${env:DEV_LOCAL_DB_USERNAME}
+        DEV_LOCAL_DB_PASSWORD: ${env:DEV_LOCAL_DB_PASSWORD}
+        DEV_LOCAL_DB_HOST: ${env:DEV_LOCAL_DB_HOST}
+        DEV_LOCAL_DB_PORT: ${env:DEV_LOCAL_DB_PORT}
+
+    runtime: nodejs18.x
+    timeout: 3
+    region: us-east-2
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-db:connect
+          Resource: #### TODO: UPDATE TO NEW ONE
+              - arn:aws:rds:us-east-2:561047771337:db:v2devproduct ## will be from the rds
+    vpc:
+        securityGroupIds: #### TODO: UPDATE TO NEW ONE
+            - sg-0fcdc73c206e2dda6 # Security Group for lambda outbound to rds only
+        subnetIds: #### TODO: UPDATE TO NEW ONES // get from the new created vpc
+            - subnet-0e6efb7110dc10abc # Public Subnet in us-east-2a
+            - subnet-07f0730f389f98990 # Public Subnet in us-east-2b
+            - subnet-062b74da1ec0158a2 # Private Subnet in us-east-2a
+            - subnet-0f01aa035c9932fff # Private Subnet
+
+    cors:
+        allowedOrigins:
+           # - "https://v3-erm.web.app"
+            - "*"
+        allowedMethods:
+            - POST
+            - GET
+            - OPTIONS
+        allowedHeaders:
+            - Content-Type
+            - X-Api-Key
+        #  exposedResponseHeaders: "*"
+        maxAge: 6000 # In seconds
+
+functions:
+    v3AccessJobSeekerJobApplication:
+        handler: src/middleware/jobSeekerAccess/jobApplication.v3AccessJobSeekerJobApplication
+        events:
+            - http:
+                  path: /api/accessJobSeekerJobApplication/{jobPostId}/{applicationId}
+                  method: post
+
+    v3AccessJobSeekerCreateApplication:
+        handler: src/middleware/jobSeekerAccess/job-details.v3AccessJobSeekerCreateApplication
+        events:
+            - http:
+                  path: /api/accessJobSeekerCreateApplication
+                  method: post
+
+    v3AccessJobSeekerJobDetails:
+        handler: src/middleware/jobSeekerAccess/job-details.v3AccessJobSeekerJobDetails
+        events:
+            - http:
+                  path: /api/accessJobSeekerJobDetails/{id}
+                  method: post
+
+    v3AccessPublicJobDetails:
+        handler: src/middleware/accessPublic/jobDetails.v3AccessPublicJobDetails
+        events:
+            - http:
+                  path: /api/accessPublicJobDetails/{id}
+                  method: post
+
+    v3AccessAdminUserProfileUpdateUser:
+        handler: src/middleware/adminAccess/users/userProfile/index.v3AccessAdminUserProfileUpdateUser
+        events:
+            - http:
+                  path: /api/AdminUserProfileUpdateUser/{id}
+                  method: post
+
+    v3AccessAdminUserProfile:
+        handler: src/middleware/adminAccess/users/userProfile/index.v3AccessAdminUserProfile
+        events:
+            - http:
+                  path: /api/AdminUserProfile/{id}
+                  method: post
+
+    # v3AccessAdminSettingsCreatePermission:
+    #   handler: src/middleware/adminAccess/settings/defaultPermissions/index.v3AccessAdminSettingsCreatePermission
+    #  events:
+    #  - http:
+    #       path: /api/createPermission
+    #       method: post
+
+    v3AccessAdminSettingsUpdateDefaults:
+        handler: src/middleware/adminAccess/settings/Permissions_and_defaults.v3AccessAdminSettingsUpdateDefaults
+        events:
+            - http:
+                  path: /api/updateDefaultPermissions
+                  method: post
+
+    v3AccessAdminUsersCreateTeamMember:
+        handler: src/middleware/adminAccess/users/teamMembers/index.v3AccessAdminUsersCreateTeamMember
+        events:
+            - http:
+                  path: /api/createTeamMember
+                  method: post
+
+    v3accessAdminUsersUsersOther:
+        handler: src/middleware/adminAccess/users/other/index.v3accessAdminUsersUsersOther
+        events:
+            - http:
+                  path: /api/v3accessAdminUsersUsersOther
+                  method: post
+
+    v3AccessAdminUsersUpdateTeamMember:
+        handler: src/middleware/adminAccess/users/teamMembers/index.v3AccessAdminUsersUpdateTeamMember
+        events:
+            - http:
+                  path: /api/updateTeamMember
+                  method: post
+
+    v3AccessAdminSettingsTitles:
+        handler: src/middleware/adminAccess/settings/title/index.v3AccessAdminSettingsTitles
+        events:
+            - http:
+                  path: /api/adminAccessSettingsTitleIndex
+                  method: post
+
+    v3AccessAdminSettingsCreateTitle:
+        handler: src/middleware/adminAccess/settings/title/index.createTitle
+        events:
+            - http:
+                  path: /api/createTitle
+                  method: post
+
+    v3AccessAdminSettingsDeleteTitle:
+        handler: src/middleware/adminAccess/settings/title/index.deleteTitle
+        events:
+            - http:
+                  path: /api/deleteTitle
+                  method: post
+
+    v3AccessAdminSettingsUpdateTitle:
+        handler: src/middleware/adminAccess/settings/title/index.updateTitle
+        events:
+            - http:
+                  path: /api/updateTitle
+                  method: post
+
+    v3AccessAdminSettingsDepartments:
+        handler: src/middleware/adminAccess/settings/department/index.v3AccessAdminSettingsDepartments
+        events:
+            - http:
+                  path: /api/adminAccessSettingsDepartmentsIndex
+                  method: post
+
+    v3AccessAdminSettingsCreateDepartment:
+        handler: src/middleware/adminAccess/settings/department/index.createDepartment
+        events:
+            - http:
+                  path: /api/createDepartment
+                  method: post
+
+    v3AccessAdminSettingsUpdateDepartment:
+        handler: src/middleware/adminAccess/settings/department/index.updateDepartment
+        events:
+            - http:
+                  path: /api/updateDepartment
+                  method: post
+
+    v3AccessAdminSettingsDeleteDepartment:
+        handler: src/middleware/adminAccess/settings/department/index.deleteDepartment
+        events:
+            - http:
+                  path: /api/deleteDepartment
+                  method: post
+
+    AccessAdminSettingsPermissions_and_defaults:
+        handler: src/middleware/adminAccess/settings/Permissions_and_defaults.AccessAdminSettingsPermissions_and_defaults
+        events:
+            - http:
+                  path: /api/AccessAdminSettingsPermissions_and_defaults
+                  method: post
+
+    AccessAdminUsersTeamMembers:
+        handler: src/middleware/adminAccess/users/teamMembers/index.AccessAdminUsersTeamMembers
+        events:
+            - http:
+                  path: /api/AccessAdminUsersTeamMembers
+                  method: post
+
+    getPermissionsMaster:
+        handler: src/middleware/accessControls/permissions.getPermissionsMaster
+        events:
+            - http:
+                  path: /api/getPermissionsMaster
+                  method: post
+
+    login:
+        handler: src/middleware/accessControls/permissions.login
+        events:
+            - http:
+                  path: /api/login
+                  method: post
+
+    getUserPermission:
+        handler: src/middleware/accessControls/permissions.getUserPermission
+        events:
+            - http:
+                  path: /api/getUserPermission
+                  method: post
+
+    accessJobSeekerGetJobPosts:
+        handler: src/middleware/jobSeekerAccess/job_posts_all.accessJobSeekerGetJobPosts
+        events:
+            - http:
+                  path: /api/accessJobSeekerGetJobPosts
+                  method: post
+
+    accessJobSeekerJobListsGetJobPosts:
+        handler: src/middleware/accessPublic/jobList.accessJobSeekerJobListsGetJobPosts
+        events:
+            - http:
+                  path: /api/accessJobSeekerJobListsGetJobPosts
+                  method: post
+
+    getAppliationsViaUserId:
+        handler: src/middleware/jobSeekerAccess/jobPostApplied.getAppliationsViaUserId
+        events:
+            - http:
+                  path: /api/accessJobSeekerGetAppliationsViaUserId/{id}
+                  method: post
+
+    getUser:
+        handler: src/middleware/header.getUser
+        events:
+            - http:
+                  path: /api/getUser
+                  method: post
+
+    accessJobSeekerDashboard:
+        handler: src/middleware/jobSeekerAccess/dashboard.accessJobSeekerDashboard
+        events:
+            - http:
+                  path: /api/accessJobSeekerDashboard
+                  method: post
+
+    adminAccessJobsDashboard:
+        handler: src/middleware/adminAccess/jobs/dashBoard.adminAccessJobsDashboard
+        events:
+            - http:
+                  path: /api/adminAccessJobsDashboard
+                  method: post
+
+    adminAccessApplicationsAll:
+        handler: src/middleware/adminAccess/jobs/applicationsAll.adminAccessApplicationsAll
+        events:
+            - http:
+                  path: /api/adminAccessApplicationsAll
+                  method: post
+
+    accessAdminManageJobs:
+        handler: src/middleware/adminAccess/jobs/manageJobs.accessAdminManageJobs
+        events:
+            - http:
+                  path: /api/accessAdminManageJobs
+                  method: post
+
+    accessAdminJobDetailsEdit:
+        handler: src/middleware/adminAccess/jobs/jobPostEdit.accessAdminJobDetailsEdit
+        events:
+            - http:
+                  path: /api/accessAdminJobDetailsEdit/{id}
+                  method: post
+
+    accessAdminjobPostManageDocuments:
+        handler: src/middleware/adminAccess/jobs/jobPostManageDocuments.accessAdminjobPostManageDocuments
+        events:
+            - http:
+                  path: /api/accessAdminjobPostManageDocuments
+                  method: post
+
+    accessAdminjobPostManageDocumentsCreateDocument:
+        handler: src/middleware/adminAccess/jobs/jobPostManageDocuments.createDocument
+        events:
+            - http:
+                  path: /api/createDocument
+                  method: post
+
+    accessAdminjobPostManageDocument:
+        handler: src/middleware/adminAccess/jobs/accessAdminjobPostManageDocument.accessAdminjobPostManageDocument
+        events:
+            - http:
+                  path: /api/accessAdminjobPostManageDocument/{id}
+                  method: post
+
+    accessAdminjobPostEditDocument:
+        handler: src/middleware/adminAccess/jobs/accessAdminjobPostManageDocument.accessAdminjobPostEditDocument
+        events:
+            - http:
+                  path: /api/accessAdminjobPostEditDocument/{id}
+                  method: post
+
+    UtilFileUploadFirebase:
+        handler: src/services/utils.UtilFileUploadFirebase
+        events:
+            - http:
+                  path: /api/UtilFileUploadFirebase/{id}
+                  method: post
+
+    accessJobSeekerjobPostAppliedRetractApplication:
+        handler: src/middleware/jobSeekerAccess/jobPostApplied.accessJobSeekerjobPostAppliedRetractApplication
+        events:
+            - http:
+                  path: /api/accessJobSeekerjobPostAppliedRetractApplication/{id}
+                  method: post
+
+    testauth:
+        handler: src/middleware/testauth.testauth
+        events:
+            - http:
+                  path: /api/testauth
+                  method: post
+
+plugins:
+    - serverless-offline
+    - serverless-dotenv-plugin
+    - serverless-webpack

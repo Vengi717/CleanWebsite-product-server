@@ -1,0 +1,1 @@
+Create 4 envs. localdev, remotedev, localprod,remoteprod

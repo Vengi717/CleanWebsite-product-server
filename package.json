@@ -1,0 +1,36 @@
+{
+    "name": "product",
+    "version": "1.0.0",
+    "description": "This is our product",
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "boxen": "^3.2.0",
+        "cors": "^2.8.5",
+        "cryptr": "^6.0.2",
+        "dotenv": "^16.3.1",
+        "firebase-admin": "^11.11.0",
+        "jsonwebtoken": "^8.5.1",
+        "multer": "^1.4.5-lts.1",
+        "serverless-mysql": "^1.5.5"
+    },
+    "devDependencies": {
+        "axios": "^0.21.1",
+        "serverless": "^3.36.0",
+        "serverless-dotenv-plugin": "^6.0.0",
+        "serverless-jest-plugin": "^0.4.0",
+        "serverless-offline": "^13.2.0",
+        "serverless-stack-output": "^0.2.3",
+        "serverless-webpack": "^5.13.0",
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4"
+    },
+    "scripts": {
+        "deploy": "serverless deploy",
+        "start": "serverless offline"
+    },
+    "jest": {
+        "testMatch": [
+            "**/?(*.)+(spec|test).[jt]s?(x)"
+        ]
+    }
+}
